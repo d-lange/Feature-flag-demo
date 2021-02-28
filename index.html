@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>David Lange's Feature Flag Demo</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" media="screen"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/launchdarkly-js-client-sdk@2"></script>
+  </head>
+  <body>
+    <script>
+      var user = {
+        "firstName": "Joe",
+        "lastName": "Smith",
+        "key": "user12345",
+        "custom": {
+          "groups": "beta_testers"
+        }
+      };
+
+      var header_div = document.createElement("div");
+      header_div.classList.add("header");
+      var header_p = header_div.appendChild(document.createElement("p"));
+      header_p.classList.add("experiment-status");
+      document.body.appendChild(header_div);
+
+      header_p.appendChild(document.createTextNode('Initializing...'));
+
+      var ldclient = LDClient.initialize('CLIENT_SIDE_ID', user);
+
+      function renderBlogPosts(showLikeButton=false) {
+        var post_count = 4;
+        var container_div = document.createElement("div");
+        container_div.classList.add("container");
+
+        for (i = 0; i < post_count; i++) {
+          var outer_div = document.createElement("div");
+          outer_div.classList.add("blog-post-container");
+
+          var divider_div = document.createElement("div");
+          divider_div.classList.add("divider");
+
+          var inner_div = document.createElement("div");
+          inner_div.classList.add("post-details");
+
+          var p_header = inner_div.appendChild(document.createElement("p"));
+          p_header.classList.add("post-header");
+          p_header.appendChild(document.createTextNode("Blog post #" + (i + 1)));
+
+          var p_body = inner_div.appendChild(document.createElement("p"));
+          p_body.classList.add("post-body");
+          p_body.appendChild(document.createTextNode("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))
+
+          if (showLikeButton) {
+            var like_button_container = inner_div.appendChild(document.createElement("div"));
+            like_button_container.classList.add("like-button");
+          }
+          
+          outer_div.appendChild(inner_div);
+          container_div.appendChild(outer_div);
+          container_div.appendChild(divider_div);  
+  
+        }
+        document.body.appendChild(container_div);
+      }
+
+      function addLikeButton() {
+        counter = 1;
+        var el = document.getElementsByClassName("like-button");
+        for (var i = 0; i < el.length; i++) {
+          el[i].innerHTML = `<i id="button-${counter}"class="fa fa-heart-o"></i>`;
+          counter++;
+        }
+      }
+
+
+      function render() {
+        var shouldShow = ldclient.variation("save-favorites", false);
+        var label = (shouldShow ? "Showing" : "Not showing") + " your feature to " + user.key;
+        header_p.replaceChild(document.createTextNode(label), header_p.firstChild);
+
+        renderBlogPosts(showLikeButton=shouldShow);
+
+        if (shouldShow) {
+          addLikeButton();
+
+          window.onclick = function (event) {
+            var target = event.target;
+            if(target.closest('.fa.fa-heart-o')) {
+              var el = document.getElementById(target.id);
+              el.classList.toggle("red");
+            }
+            else {
+              null;
+            }
+          };
+        }
+
+      }
+      
+      ldclient.on('ready', render);
+      ldclient.on('change', render);
+
+
+    </script>
+  </body>
+</html>
