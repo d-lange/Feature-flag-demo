@@ -2,7 +2,15 @@
 
 This project demonstrates how to leverage LaunchDarkly's Javascript SDK to create a simple feature-flag.
 
-When enabled, the ability to favorite a post is visible. When disabled, it is removed from the page. 
+When enabled, the ability to favorite a post is visible. When disabled, the feature is no longer available or visible to the user. 
+
+#### Enabled
+
+![Flag Enabled](./assets/enabled.png)
+
+#### Disabled
+
+![Flag Disabled](./assets/disabled.png)
 
 ### How to see it in action?
 
